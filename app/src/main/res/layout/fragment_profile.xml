@@ -9,7 +9,7 @@
         android:id="@+id/profile_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profile"
+        android:text="@string/profile"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
@@ -19,20 +19,20 @@
         android:id="@+id/edit_profile_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Edit Profile" />
+        android:text="@string/edit_profile" />
 
     <Button
         android:id="@+id/notification_settings_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Notification Settings"
+        android:text="@string/notification_settings"
         android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/logout_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log Out"
+        android:text="@string/log_out"
         android:layout_marginTop="16dp" />
 
 </LinearLayout>

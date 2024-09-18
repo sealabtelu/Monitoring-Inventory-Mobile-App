@@ -8,7 +8,7 @@
         android:id="@+id/home_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to the Home Screen"
+        android:text="@string/welcome_to_the_home_screen"
         android:textSize="18sp"
         android:layout_gravity="center" />
 </FrameLayout>
