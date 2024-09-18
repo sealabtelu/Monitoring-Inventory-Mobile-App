@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/house_filled"
+        android:title="Home" />
+    <item
+        android:id="@+id/nav_rooms"
+        android:icon="@drawable/inbox_filled"
+        android:title="Rooms" />
+    <item
+        android:id="@+id/nav_items"
+        android:icon="@drawable/box_filled"
+        android:title="Items" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/user_filled"
+        android:title="Profile" />
+</menu>

@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "676857117308",
+    "firebase_url": "https://larabase-2267e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "larabase-2267e",
+    "storage_bucket": "larabase-2267e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676857117308:android:06816814eaf9daaa75a7f9",
+        "android_client_info": {
+          "package_name": "com.example.asetlogistik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfojZacGVX-fTWogG11NraKoLN2a-out0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676857117308:android:f74a4a4849dcf0d375a7f9",
+        "android_client_info": {
+          "package_name": "com.example.rfid_seaxrnest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfojZacGVX-fTWogG11NraKoLN2a-out0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
