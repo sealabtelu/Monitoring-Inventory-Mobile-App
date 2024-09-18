@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.rfid_seaxrnest.R
 import com.example.rfid_seaxrnest.model.Item
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -16,31 +17,39 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class ItemsFragment : Fragment() {
+class EditRoomFragment : Fragment() {
 
+    private lateinit var roomTitle: TextView
     private lateinit var itemsList: LinearLayout
-    private lateinit var itemsTitle: TextView
     private val db = FirebaseFirestore.getInstance()
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_items, container, false) // Correct layout file here
-        itemsList = view.findViewById(R.id.items_list) // Link to the LinearLayout in fragment_items.xml
+        val view = inflater.inflate(R.layout.fragment_edit_room, container, false)
 
-        fetchItemsData() // Fetch data for all items, no need for nomorRak here
+        roomTitle = view.findViewById(R.id.room_title)
+        itemsList = view.findViewById(R.id.items_list)
+
+        val nomorRak = arguments?.getString("nomorRak") ?: ""
+        roomTitle.text = "Room: $nomorRak"
+
+        fetchItemsData(nomorRak)
 
         return view
     }
 
-
-    private fun fetchItemsData() {
+    private fun fetchItemsData(nomorRak: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val dataBarangCollection = db.collection("data_barang").get().await()
+                val dataBarangCollection = db.collection("data_barang")
+                    .whereEqualTo("nomor_rak", nomorRak)
+                    .get()
+                    .await()
 
-                val items = mutableListOf<Item>()
+                val items = mutableListOf<Item>() // Define Item data class with fields No, nama_barang, stok_sekarang
 
                 for ((index, document) in dataBarangCollection.withIndex()) {
                     val namaBarang = document.getString("nama_barang") ?: "Unknown"
@@ -50,16 +59,16 @@ class ItemsFragment : Fragment() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    displayItems(items) // Call displayItems on the main thread
+                    displayItems(items)
                 }
             } catch (e: Exception) {
-                e.printStackTrace() // Log the error to check if the fetching fails
+                // Handle error
             }
         }
     }
 
     private fun displayItems(items: List<Item>) {
-        itemsList.removeAllViews() // Clear previous views
+        itemsList.removeAllViews()
 
         for (item in items) {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_table_row, itemsList, false)
@@ -72,7 +81,8 @@ class ItemsFragment : Fragment() {
             itemName.text = item.namaBarang
             itemStock.text = item.stokSekarang.toString()
 
-            itemsList.addView(itemView) // Add the item row to the itemsList
+            itemsList.addView(itemView)
         }
     }
 }
+

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">RFID_SEAxRnEST</string>
+    <string name="welcome_to_the_home_screen">Welcome to the Home Screen</string>
+    <string name="remove_item">Remove Item</string>
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="log_out">Log Out</string>
+    <string name="add_item">Add Item</string>
+    <string name="items">Items</string>
+    <string name="rooms">Rooms</string>
 </resources>
