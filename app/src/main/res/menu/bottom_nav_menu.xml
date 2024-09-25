@@ -1,18 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/house_filled"
-        android:title="Home" />
+        android:title="Home"
+        android:iconTint="@color/menu_icon_color" />
     <item
         android:id="@+id/nav_rooms"
         android:icon="@drawable/inbox_filled"
-        android:title="Rooms" />
+        android:title="Rooms"
+        android:iconTint="@color/menu_icon_color" />
     <item
         android:id="@+id/nav_items"
         android:icon="@drawable/box_filled"
-        android:title="Items" />
+        android:title="Items"
+        android:iconTint="@color/menu_icon_color" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/user_filled"
-        android:title="Profile" />
+        android:title="Profile"
+        android:iconTint="@color/menu_icon_color" />
 </menu>

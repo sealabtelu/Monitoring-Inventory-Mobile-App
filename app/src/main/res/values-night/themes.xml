@@ -3,5 +3,18 @@
     <style name="Base.Theme.RFID_SEAxRnEST" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/darkBlue</item>
+        <item name="colorSecondary">@color/yellowLight</item>
+        <item name="colorPrimaryVariant">@color/darkBlue</item>
+        <item name="statusBarBackground">@color/darkBlue</item>
+        <item name="itemBackground">@color/darkBlue</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
+
+    <style name="Theme.RFID_SEAxRnEST" parent="Base.Theme.RFID_SEAxRnEST" />
+
+    <style name="Widget.Material3.BottomNavigationView.ActiveIndicator." parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="colorSurface">?android:attr/colorSecondary</item>
+    </style>
+
 </resources>

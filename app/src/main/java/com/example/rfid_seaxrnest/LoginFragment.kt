@@ -28,8 +28,8 @@ class LoginFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
 
-        emailField = view.findViewById(R.id.email_field)
-        passwordField = view.findViewById(R.id.password_field)
+        emailField = view.findViewById(R.id.et_email)
+        passwordField = view.findViewById(R.id.et_pass)
         val loginButton = view.findViewById<Button>(R.id.login_button)
 
         loginButton.setOnClickListener {
