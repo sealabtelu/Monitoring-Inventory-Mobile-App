@@ -1,11 +1,14 @@
 package com.example.inventorymonitoring.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.inventorymonitoring.data.ServiceLocator
 import com.example.inventorymonitoring.ui.screens.HomeScreen
 import com.example.inventorymonitoring.ui.screens.ItemDetailsScreen
 import com.example.inventorymonitoring.ui.screens.ItemsScreen
@@ -21,8 +24,18 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(context: Context) {
     val navController = rememberNavController()
+    val authRepository = ServiceLocator.provideAuthRepository(context)
+
+    LaunchedEffect(Unit) {
+        val currentUser = authRepository.getCurrentUser()
+        if (currentUser != null) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.SignIn.route) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -30,6 +43,7 @@ fun AppNavigation() {
     ) {
         composable(Screen.SignIn.route) {
             SignInScreen(
+                context = context,
                 onSignInSuccess = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.SignIn.route) { inclusive = true }

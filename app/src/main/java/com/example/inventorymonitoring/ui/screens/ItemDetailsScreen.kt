@@ -1,7 +1,5 @@
 package com.example.inventorymonitoring.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,21 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,19 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.inventorymonitoring.R
 import com.example.inventorymonitoring.data.ServiceLocator
 import com.example.inventorymonitoring.data.model.DataBarang
-import com.example.inventorymonitoring.navigation.Screen
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
@@ -71,13 +53,13 @@ fun ItemDetailsScreen(
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(itemId) {
-        firestoreRepository.getBarangStream()
+        firestoreRepository.getBarangById(itemId)
             .catch { e ->
                 error = e.message
                 isLoading = false
             }
-            .collectLatest { items ->
-                item = items.find { it.id == itemId }
+            .collectLatest { fetchedItem ->
+                item = fetchedItem
                 isLoading = false
             }
     }
@@ -234,56 +216,4 @@ fun DateRow(
 fun formatTimestamp(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMMM yyyy | HH:mm:ss", Locale.getDefault())
     return sdf.format(Date(timestamp))
-}
-
-@Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = Screen.SignIn.route
-    ) {
-        composable(Screen.SignIn.route) {
-            SignInScreen(
-                onSignInSuccess = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.SignIn.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable(Screen.Home.route) {
-            HomeScreen(
-                onItemClick = { itemId ->
-                    navController.navigate(Screen.ItemDetails.createRoute(itemId))
-                },
-                onAddNewItem = {
-                    navController.navigate(Screen.Items.route)
-                }
-            )
-        }
-
-        composable(Screen.Items.route) {
-            ItemsScreen(
-                onItemClick = { itemId ->
-                    navController.navigate(Screen.ItemDetails.createRoute(itemId))
-                }
-            )
-        }
-
-        composable(
-            route = Screen.ItemDetails.route,
-            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
-            ItemDetailsScreen(
-                itemId = itemId,
-                onBackClick = {
-                    navController.navigateUp()
-                }
-            )
-        }
-    }
 }
