@@ -15,7 +15,7 @@ class AuthRepository(
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener { result ->
                     result.user?.let { user ->
-                        firestore.collection("users")
+                        firestore.collection("user")
                             .document(user.uid)
                             .update("terakhir_login", System.currentTimeMillis())
 
