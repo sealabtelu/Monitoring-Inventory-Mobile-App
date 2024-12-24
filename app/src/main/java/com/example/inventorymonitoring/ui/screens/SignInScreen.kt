@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.R
 import com.example.inventorymonitoring.data.ServiceLocator
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+
 
 @Composable
 fun SignInScreen(
@@ -39,7 +42,7 @@ fun SignInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     val authRepository = remember { ServiceLocator.authRepository }
     val coroutineScope = rememberCoroutineScope()
@@ -48,19 +51,11 @@ fun SignInScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Logo
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = "App Logo",
-            modifier = Modifier
-                .size(120.dp)
-                .padding(vertical = 32.dp)
-        )
-
         Text(
-            text = "Sign In to Continue",
+            text = "Sign In",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 32.dp)
         )
@@ -69,58 +64,45 @@ fun SignInScreen(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
 
-        Text(
-            text = "Forgot your password?",
-            modifier = Modifier
-                .align(Alignment.End)
-                .clickable { /* Handle forgot password */ }
-                .padding(bottom = 24.dp),
-            color = MaterialTheme.colorScheme.primary
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = {
                 coroutineScope.launch {
                     isLoading = true
-                    errorMessage = null
+                    error = null
                     val result = authRepository.signIn(email, password)
                     isLoading = false
                     result.fold(
                         onSuccess = { onSignInSuccess() },
-                        onFailure = { errorMessage = it.message }
+                        onFailure = { error = it.message }
                     )
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            enabled = !isLoading
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-            } else {
-                Text("Sign In")
-            }
+            Text("Sign In")
         }
 
-        errorMessage?.let {
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+        }
+
+        error?.let {
             Text(
                 text = it,
                 color = MaterialTheme.colorScheme.error,

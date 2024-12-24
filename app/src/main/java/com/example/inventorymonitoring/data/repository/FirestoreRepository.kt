@@ -13,6 +13,7 @@ import kotlinx.coroutines.tasks.await
 class FirestoreRepository(
     private val firestore: FirebaseFirestore
 ) {
+
     fun getBarangStream(): Flow<List<DataBarang>> = callbackFlow {
         val subscription = firestore.collection("data_barang")
             .addSnapshotListener { snapshot, error ->
@@ -87,6 +88,7 @@ class FirestoreRepository(
             document.set(it)
         }
 
+        // Update stok in data_barang
         firestore.collection("data_barang")
             .document(barangMasuk.barangId)
             .get()
@@ -109,6 +111,7 @@ class FirestoreRepository(
             document.set(it)
         }
 
+        // Update stok in data_barang
         firestore.collection("data_barang")
             .document(barangKeluar.barangId)
             .get()

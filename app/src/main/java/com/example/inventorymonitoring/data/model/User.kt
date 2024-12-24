@@ -7,5 +7,5 @@ data class User(
     val resetCode: String = "",
     val terakhirLogin: Long = 0,
     val updatedAt: Long = 0,
-    val username: String = ""
+    val username: String = "",
 )

@@ -9,6 +9,6 @@ object ServiceLocator {
     private val firebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val firestore by lazy { FirebaseFirestore.getInstance() }
 
-    val authRepository by lazy { AuthRepository(firebaseAuth, firestore) }
+    val authRepository by lazy { AuthRepository(firestore) }
     val firestoreRepository by lazy { FirestoreRepository(firestore) }
 }
