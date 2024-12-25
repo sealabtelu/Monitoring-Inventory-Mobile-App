@@ -1,40 +1,20 @@
 package com.example.inventorymonitoring.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.data.ServiceLocator
 import com.example.inventorymonitoring.data.repository.RecentActivity
@@ -61,7 +41,7 @@ fun HomeScreen(
                 isLoading = false
             }
             .collectLatest { activities ->
-                recentActivity = activities.take(5) // Limit to the latest 5 activities
+                recentActivity = activities.take(5)
                 isLoading = false
             }
     }
@@ -78,129 +58,113 @@ fun HomeScreen(
             }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Home") },
-                actions = {
-                    IconButton(onClick = { /* Handle notifications */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications"
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Gradient Background for header
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF6B35E8), // Dark purple
+                            Color(0xFF8B5CF6)  // Light purple
                         )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
-            )
-        }
-    ) { paddingValues ->
+        )
+
         LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = modifier.fillMaxSize()
         ) {
-            // Recent Activity Section
+            // Header
             item {
-                Text(
-                    text = "Recent Activity",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .wrapContentSize(Alignment.Center)
-                    )
-                } else if (error != null) {
-                    Text(
-                        text = "Error: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                } else {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        items(recentActivity) { activity ->
-                            ActivityCard(
-                                itemName = activity.namaBarang,
-                                location = activity.nomorRak,
-                                action = activity.status // Use status for action
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Rooms Section
-            item {
-                Text(
-                    text = "Rooms",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .wrapContentSize(Alignment.Center)
-                    )
-                } else if (error != null) {
-                    Text(
-                        text = "Error: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                } else {
-                    // Display room cards based on unique nomor_rak
-                    uniqueNomorRak.forEach { nomorRak ->
-                        RoomCard(
-                            roomName = "Room $nomorRak",
-                            description = "Description for Room $nomorRak",
-                            onViewClick = { /* Handle room view */ }
-                        )
-                    }
-                }
-            }
-
-            // Add New Item Section
-            item {
-                Card(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                        .padding(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Text(
+                        text = "Home",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(
+                        onClick = { /* Handle notifications */ },
+                        modifier = Modifier.align(Alignment.TopEnd)
                     ) {
-                        Text(
-                            text = "Add new item",
-                            style = MaterialTheme.typography.headlineSmall
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            tint = Color.White
                         )
+                    }
+                }
+            }
+
+            // White background content
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Column {
+                        // Rooms Section
                         Text(
-                            text = "Track Item Locations and count",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            text = "Rooms",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(16.dp),
+                            fontWeight = FontWeight.Bold
                         )
-                        Button(
-                            onClick = onAddNewItem,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Add Item")
+
+                        if (uniqueNomorRak.isEmpty()) {
+                            Text(
+                                text = "No rooms available",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(16.dp),
+                                color = Color.Gray
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                            ) {
+                                uniqueNomorRak.forEach { nomorRak ->
+                                    RoomCard(
+                                        roomName = "Ruangan $nomorRak",
+                                        description = "Description for Ruangan $nomorRak",
+                                        onViewClick = { /* Handle room view */ },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Recent Activity Section
+                        Text(
+                            text = "Recent Activity",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(16.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        } else {
+                            recentActivity.forEach { activity ->
+                                ActivityCard(
+                                    itemName = activity.namaBarang,
+                                    location = activity.nomorRak,
+                                    action = activity.status
+                                )
+                            }
                         }
                     }
                 }
@@ -213,51 +177,15 @@ fun HomeScreen(
 fun ActivityCard(
     itemName: String,
     location: String,
-    action: String
+    action: String,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
-            .padding(end = 8.dp)
-            .width(200.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = itemName,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = location,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Button(
-                onClick = { /* Handle action */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (action == "Move In")
-                        MaterialTheme.colorScheme.primaryContainer
-                    else
-                        MaterialTheme.colorScheme.errorContainer
-                ),
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-            ) {
-                Text(action)
-            }
-        }
-    }
-}
-
-@Composable
-fun RoomCard(
-    roomName: String,
-    description: String,
-    onViewClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -268,16 +196,70 @@ fun RoomCard(
         ) {
             Column {
                 Text(
-                    text = roomName,
-                    style = MaterialTheme.typography.titleLarge
+                    text = itemName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium
+                    text = location,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
             }
-            Button(onClick = onViewClick) {
-                Text("View")
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        if (action == "Barang Masuk") Color(0xFFE2F5E9) else Color(0xFFFFE9E9)
+                    )
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = action,
+                    color = if (action == "Barang Masuk") Color(0xFF4CAF50) else Color(0xFFE53935),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RoomCard(
+    roomName: String,
+    description: String,
+    onViewClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = roomName,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Button(
+                onClick = onViewClick,
+                modifier = Modifier.align(Alignment.End),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6B35E8)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("View", fontWeight = FontWeight.Bold)
             }
         }
     }

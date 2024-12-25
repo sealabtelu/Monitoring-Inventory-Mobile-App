@@ -87,6 +87,66 @@ class FirestoreRepository(
 
         emit(nomorRakSet.toList()) // Convert the set to a list and emit it
     }
+    fun getAllDataBarang(): Flow<List<DataBarang>> = flow {
+        val snapshot = firestore.collection("data_barang").get().await()
+        val items = snapshot.documents.mapNotNull { it.toObject(DataBarang::class.java) }
+        emit(items)
+    }
+    fun getRecentActivityForItem(itemId: String): Flow<List<RecentActivity>> = flow {
+        val barangMasukSnapshot = firestore.collection("barang_masuk").get().await()
+        val barangKeluarSnapshot = firestore.collection("barang_keluar").get().await()
+        val dataBarangSnapshot = firestore.collection("data_barang").get().await()
+
+        // Convert data_barang documents to a map for quick lookup
+        val dataBarangMap = dataBarangSnapshot.documents.associate { document ->
+            val dataBarang = document.toObject(DataBarang::class.java)
+            dataBarang?.id to dataBarang
+        }
+
+        val recentActivities = mutableListOf<RecentActivity>()
+
+        // Process barang_masuk
+        for (document in barangMasukSnapshot.documents) {
+            val barangMasuk = document.toObject(BarangMasuk::class.java)
+            if (barangMasuk?.barang_id == itemId) {
+                val dataBarang = dataBarangMap[barangMasuk.barang_id]
+                if (dataBarang != null) {
+                    recentActivities.add(
+                        RecentActivity(
+                            namaBarang = dataBarang.nama_barang,
+                            nomorRak = "Ruangan " + dataBarang.nomor_rak,
+                            status = "Barang Masuk",
+                            timestamp = barangMasuk.created_at
+                        )
+                    )
+                }
+            }
+        }
+
+        // Process barang_keluar
+        for (document in barangKeluarSnapshot.documents) {
+            val barangKeluar = document.toObject(BarangKeluar::class.java)
+            if (barangKeluar?.barang_id == itemId) {
+                val dataBarang = dataBarangMap[barangKeluar.barang_id]
+                if (dataBarang != null) {
+                    recentActivities.add(
+                        RecentActivity(
+                            namaBarang = dataBarang.nama_barang,
+                            nomorRak = "Ruangan " + dataBarang.nomor_rak,
+                            status = "Barang Keluar",
+                            timestamp = barangKeluar.created_at
+                        )
+                    )
+                }
+            }
+        }
+
+        // Sort activities by timestamp in descending order
+        recentActivities.sortByDescending { it.timestamp }
+
+        // Emit the activities
+        emit(recentActivities)
+    }
 }
 
 // Data class to represent recent activity
@@ -96,3 +156,4 @@ data class RecentActivity(
     val status: String,
     val timestamp: String
 )
+

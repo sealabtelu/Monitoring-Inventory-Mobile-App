@@ -7,7 +7,9 @@ data class DataBarang(
     val kode_barang: String = "",
     val nama_barang: String = "",
     val nomor_rak: String = "",
+    val status: String = "",
     val stok_awal: Int = 0,
     val stok_sekarang: Int = 0,
-    val updated_at: String = ""
+    val updated_at: String = "",
+    val umur: Int = 0,
 )

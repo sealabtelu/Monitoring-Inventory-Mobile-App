@@ -1,5 +1,6 @@
 package com.example.inventorymonitoring.navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -36,6 +37,7 @@ sealed class Screen(val route: String) {
 
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun AppNavigation(context: Context) {
     val navController = rememberNavController()
