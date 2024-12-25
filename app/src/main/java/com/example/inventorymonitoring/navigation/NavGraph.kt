@@ -124,6 +124,9 @@ fun AppNavigation(context: Context) {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Profile.route) { inclusive = true }
                         }
+                    },
+                    onClickBack = {
+                        navController.navigate(Screen.Profile.route)
                     }
                 )
             }

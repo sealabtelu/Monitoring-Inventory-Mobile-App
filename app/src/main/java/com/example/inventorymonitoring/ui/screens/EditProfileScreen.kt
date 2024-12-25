@@ -1,8 +1,10 @@
 package com.example.inventorymonitoring.ui.screens
 
 import android.content.Context
+import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,16 +35,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditProfileScreen(
     context: Context,
+    onClickBack: () -> Unit,
     onUpdateCredentials: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var email by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf<String?>(null) }
     var password by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
 
     val authRepository = remember { ServiceLocator.provideAuthRepository(context) }
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = true) {
+        coroutineScope.launch {
+            val user = authRepository.getCurrentUser()
+            userEmail = user?.email
+        }
+    }
 
     Column(
         modifier = modifier
@@ -51,7 +60,7 @@ fun EditProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Sign In",
+            text = "Edit Profile",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 32.dp)
         )
@@ -62,8 +71,8 @@ fun EditProfileScreen(
             textAlign = TextAlign.Start
         )
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = userEmail ?: "Loading email...",
+            onValueChange = { userEmail = it },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -82,18 +91,31 @@ fun EditProfileScreen(
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
+
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = {onClickBack()},
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancel")
+            }
+
+            Spacer(modifier = Modifier.weight(0.2f))
+
+            Button(onClick = {onUpdateCredentials()},
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Change")
+            }
+        }
     }
 
-    Button(
-        onClick = {
-            authRepository.signOut()
-            onUpdateCredentials()
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text("Logout")
-    }
+
 }

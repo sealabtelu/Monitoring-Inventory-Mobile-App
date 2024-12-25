@@ -1,5 +1,6 @@
 package com.example.inventorymonitoring.ui.screens
 
+import androidx.activity.result.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +24,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.R
 import com.example.inventorymonitoring.data.ServiceLocator
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,11 +46,19 @@ fun ProfileScreen(
     onEditButtonClick: () -> Unit,
     onLogout: () -> Unit
 ) {
-    val email by remember { mutableStateOf("user@example.com") } // Replace with dynamic email if needed
     val context = LocalContext.current
-
     val authRepository = remember { ServiceLocator.provideAuthRepository(context) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var userEmail by remember { mutableStateOf<String?>(null) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = true) {
+        coroutineScope.launch {
+            val user = authRepository.getCurrentUser()
+            userEmail = user?.email
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -91,7 +103,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = email,
+                        text = userEmail ?: "Loading email...",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .fillMaxWidth()
