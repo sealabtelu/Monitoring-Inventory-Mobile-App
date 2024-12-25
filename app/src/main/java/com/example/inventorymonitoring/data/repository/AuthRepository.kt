@@ -56,7 +56,7 @@ class AuthRepository(
                 .get()
                 .await()
 
-            if (!existingUser.documents.isEmpty()) {
+            if (existingUser.documents.isNotEmpty()) {
                 return@withContext Result.failure(Exception("User with this email already exists"))
             }
 

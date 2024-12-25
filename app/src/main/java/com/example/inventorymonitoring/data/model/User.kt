@@ -4,8 +4,8 @@ data class User(
     val email: String = "",
     val id: String = "",
     val password: String = "",
-    val resetCode: String = "",
-    val terakhirLogin: Long = 0,
-    val updatedAt: Long = 0,
+    val reset_code: Int = 0,
+    val terakhir_login: String = "",
+    val updated_at: String = "",
     val username: String = "",
 )

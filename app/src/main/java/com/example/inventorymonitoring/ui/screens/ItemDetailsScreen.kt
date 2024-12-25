@@ -137,9 +137,9 @@ fun ItemDetailsScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        DateRow("Created At", formatTimestamp(item!!.createdAt))
+                        DateRow("Created At", formatTimestamp(item!!.created_at))
                         Spacer(modifier = Modifier.height(8.dp))
-                        DateRow("Updated At", formatTimestamp(item!!.updatedAt))
+                        DateRow("Updated At", formatTimestamp(item!!.updated_at))
                     }
                 }
 
@@ -157,12 +157,12 @@ fun ItemDetailsScreen(
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
-                        Text("Name: ${item!!.namaBarang}")
-                        Text("Code: ${item!!.kodeBarang}")
+                        Text("Name: ${item!!.nama_barang}")
+                        Text("Code: ${item!!.kode_barang}")
                         Text("Type: ${item!!.jenis}")
-                        Text("Rack: ${item!!.nomorRak}")
-                        Text("Initial Stock: ${item!!.stokAwal}")
-                        Text("Current Stock: ${item!!.stokSekarang}")
+                        Text("Rack: ${item!!.nomor_rak}")
+                        Text("Initial Stock: ${item!!.stok_awal}")
+                        Text("Current Stock: ${item!!.stok_sekarang}")
                     }
                 }
 
@@ -213,7 +213,7 @@ fun DateRow(
 }
 
 @Composable
-fun formatTimestamp(timestamp: Long): String {
+fun formatTimestamp(timestamp: String): String {
     val sdf = SimpleDateFormat("dd MMMM yyyy | HH:mm:ss", Locale.getDefault())
     return sdf.format(Date(timestamp))
 }

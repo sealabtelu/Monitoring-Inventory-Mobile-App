@@ -78,9 +78,9 @@ fun ItemsScreen(
                 items(10) { index ->
                     ItemCard(
                         item = DataBarang(
-                            namaBarang = "Item $index",
-                            nomorRak = "Rack ${index + 1}",
-                            stokSekarang = index * 10
+                            nama_barang = "Item $index",
+                            nomor_rak = "Rack ${index + 1}",
+                            stok_sekarang = index * 10
                         ),
                         onClick = { onItemClick(index.toString()) }
                     )
@@ -106,15 +106,15 @@ fun ItemCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = item.namaBarang,
+                text = item.nama_barang,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Rack: ${item.nomorRak}",
+                text = "Rack: ${item.nomor_rak}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Stock: ${item.stokSekarang}",
+                text = "Stock: ${item.stok_sekarang}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

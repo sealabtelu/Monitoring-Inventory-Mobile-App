@@ -37,7 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.data.ServiceLocator
-import com.example.inventorymonitoring.data.model.BarangMasuk
+import com.example.inventorymonitoring.data.repository.RecentActivity
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
@@ -49,18 +49,31 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val firestoreRepository = remember { ServiceLocator.firestoreRepository }
-    var recentActivity by remember { mutableStateOf<List<BarangMasuk>>(emptyList()) }
+    var recentActivity by remember { mutableStateOf<List<RecentActivity>>(emptyList()) }
+    var uniqueNomorRak by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(firestoreRepository) {
-        firestoreRepository.getBarangMasukStream()
+        firestoreRepository.getRecentActivityStream()
             .catch { e ->
                 error = e.message
                 isLoading = false
             }
-            .collectLatest { items ->
-                recentActivity = items.take(5)
+            .collectLatest { activities ->
+                recentActivity = activities.take(5) // Limit to the latest 5 activities
+                isLoading = false
+            }
+    }
+
+    LaunchedEffect(firestoreRepository) {
+        firestoreRepository.getUniqueNomorRak()
+            .catch { e ->
+                error = e.message
+                isLoading = false
+            }
+            .collectLatest { nomorRakList ->
+                uniqueNomorRak = nomorRakList
                 isLoading = false
             }
     }
@@ -115,11 +128,11 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     ) {
-                        items(recentActivity) { item ->
+                        items(recentActivity) { activity ->
                             ActivityCard(
-                                itemName = item.kodeBarang,
-                                location = "Room 1", // You can customize this based on your data model
-                                action = "Move In" // You can customize this based on your data model
+                                itemName = activity.namaBarang,
+                                location = activity.nomorRak,
+                                action = activity.status // Use status for action
                             )
                         }
                     }
@@ -133,14 +146,29 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(16.dp)
                 )
-            }
-
-            items(2) { index ->
-                RoomCard(
-                    roomName = "Room ${index + 1}",
-                    description = "Description for Room ${index + 1}",
-                    onViewClick = { /* Handle room view */ }
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .wrapContentSize(Alignment.Center)
+                    )
+                } else if (error != null) {
+                    Text(
+                        text = "Error: $error",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                } else {
+                    // Display room cards based on unique nomor_rak
+                    uniqueNomorRak.forEach { nomorRak ->
+                        RoomCard(
+                            roomName = "Room $nomorRak",
+                            description = "Description for Room $nomorRak",
+                            onViewClick = { /* Handle room view */ }
+                        )
+                    }
+                }
             }
 
             // Add New Item Section
