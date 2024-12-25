@@ -79,6 +79,35 @@ class AuthRepository(
         }
     }
 
+    suspend fun updateUserCredentials(newUsername: String?, newEmail: String?, newPassword: String?, newTime: String?): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val userId = sharedPreferences.getString("userId", null) ?: return@withContext Result.failure(Exception("User not logged in"))
+            val userDocRef = firestore.collection("user").document(userId)
+
+            val updates = mutableMapOf<String, Any>()
+            if (!newUsername.isNullOrBlank()) {
+                updates["username"] = newUsername
+            }
+            if (!newEmail.isNullOrBlank()) {
+                updates["email"] = newEmail
+            }
+            if (!newPassword.isNullOrBlank()) {
+                updates["password"] = newPassword
+            }
+            if (!newTime.isNullOrBlank()) {
+                updates["updated_at"] = newTime
+            }
+
+            if (updates.isNotEmpty()) {
+                userDocRef.update(updates).await()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getCurrentUser(): User? = withContext(Dispatchers.IO) {
         val userId = sharedPreferences.getString("userId", null) ?: return@withContext null
         try {

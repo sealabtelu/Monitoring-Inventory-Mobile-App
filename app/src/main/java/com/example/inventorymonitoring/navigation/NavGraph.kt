@@ -14,12 +14,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.inventorymonitoring.data.ServiceLocator
+import com.example.inventorymonitoring.data.repository.AuthRepository
 import com.example.inventorymonitoring.ui.screens.EditProfileScreen
 import com.example.inventorymonitoring.ui.screens.HomeScreen
 import com.example.inventorymonitoring.ui.screens.ItemDetailsScreen
 import com.example.inventorymonitoring.ui.screens.ItemsScreen
 import com.example.inventorymonitoring.ui.screens.ProfileScreen
 import com.example.inventorymonitoring.ui.screens.SignInScreen
+import com.google.rpc.context.AttributeContext.Auth
 
 
 sealed class Screen(val route: String) {

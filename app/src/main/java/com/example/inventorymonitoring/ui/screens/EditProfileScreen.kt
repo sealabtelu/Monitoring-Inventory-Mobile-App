@@ -1,7 +1,9 @@
 package com.example.inventorymonitoring.ui.screens
 
 import android.content.Context
+import android.os.Build
 import android.widget.Space
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,8 +32,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.data.ServiceLocator
+import com.example.inventorymonitoring.data.repository.AuthRepository
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditProfileScreen(
     context: Context,
@@ -40,7 +46,12 @@ fun EditProfileScreen(
     modifier: Modifier = Modifier
 ) {
     var userEmail by remember { mutableStateOf<String?>(null) }
+    var userName by remember { mutableStateOf<String?>(null) }
     var password by remember { mutableStateOf("") }
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val currentTime = LocalDateTime.now().format(formatter)
+    var isLoading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     val authRepository = remember { ServiceLocator.provideAuthRepository(context) }
     val coroutineScope = rememberCoroutineScope()
@@ -49,6 +60,7 @@ fun EditProfileScreen(
         coroutineScope.launch {
             val user = authRepository.getCurrentUser()
             userEmail = user?.email
+            userName = user?.username
         }
     }
 
@@ -64,6 +76,21 @@ fun EditProfileScreen(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 32.dp)
         )
+
+        Text(
+            text = "New Username:",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Start
+        )
+        OutlinedTextField(
+            value = userName ?: "Loading username...",
+            onValueChange = { userName = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = "New Email:",
@@ -109,7 +136,18 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.weight(0.2f))
 
-            Button(onClick = {onUpdateCredentials()},
+            Button(onClick = {
+                coroutineScope.launch {
+                    isLoading = true
+                    error = null
+                    val result = authRepository.updateUserCredentials(userName, userEmail, password, currentTime)
+                    isLoading = false
+                    result.fold(
+                        onSuccess = { onUpdateCredentials() },
+                        onFailure = { error = it.message }
+                    )
+                }
+            },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Change")

@@ -50,13 +50,13 @@ fun ProfileScreen(
     val authRepository = remember { ServiceLocator.provideAuthRepository(context) }
     val coroutineScope = rememberCoroutineScope()
 
-    var userEmail by remember { mutableStateOf<String?>(null) }
+    var userName by remember { mutableStateOf<String?>(null) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         coroutineScope.launch {
             val user = authRepository.getCurrentUser()
-            userEmail = user?.email
+            userName = user?.username
         }
     }
 
@@ -97,17 +97,13 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
-                            .padding(16.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Text(
-                        text = userEmail ?: "Loading email...",
+                        text = userName ?: "Loading username...",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(16.dp, 0.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center // Center-align the email text
                     )
 
@@ -115,14 +111,10 @@ fun ProfileScreen(
                         onClick = { onEditButtonClick() },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(16.dp, 0.dp)
                     ) {
                         Text("Edit Profile")
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Dark Mode switch
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
