@@ -82,7 +82,7 @@ class AuthRepository(
     suspend fun getCurrentUser(): User? = withContext(Dispatchers.IO) {
         val userId = sharedPreferences.getString("userId", null) ?: return@withContext null
         try {
-            val userDoc = firestore.collection("users").document(userId).get().await()
+            val userDoc = firestore.collection("user").document(userId).get().await()
             userDoc.toObject(User::class.java)
         } catch (e: Exception) {
             null
