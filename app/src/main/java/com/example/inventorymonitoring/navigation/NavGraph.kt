@@ -101,7 +101,13 @@ fun AppNavigation(context: Context) {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onLogout = {
+                        navController.navigate(Screen.SignIn.route) {
+                            popUpTo(Screen.SignIn.route) { inclusive = true }
+                        }
+                    }
+                )
             }
 
             composable(
