@@ -14,20 +14,24 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.inventorymonitoring.data.ServiceLocator
+import com.example.inventorymonitoring.ui.screens.EditProfileScreen
 import com.example.inventorymonitoring.ui.screens.HomeScreen
 import com.example.inventorymonitoring.ui.screens.ItemDetailsScreen
 import com.example.inventorymonitoring.ui.screens.ItemsScreen
 import com.example.inventorymonitoring.ui.screens.ProfileScreen
 import com.example.inventorymonitoring.ui.screens.SignInScreen
 
+
 sealed class Screen(val route: String) {
     object SignIn : Screen("signin")
     object Home : Screen("home")
     object Items : Screen("items")
+    object Profile : Screen("profile")
+    object EditProfile : Screen("edit_profile")
     object ItemDetails : Screen("item_details/{itemId}") {
         fun createRoute(itemId: String) = "item_details/$itemId"
     }
-    object Profile : Screen("profile")
+
 }
 
 @Composable
@@ -102,9 +106,23 @@ fun AppNavigation(context: Context) {
 
             composable(Screen.Profile.route) {
                 ProfileScreen(
+                    onEditButtonClick = {
+                        navController.navigate(Screen.EditProfile.route)
+                    },
                     onLogout = {
                         navController.navigate(Screen.SignIn.route) {
                             popUpTo(Screen.SignIn.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen(
+                    context = context,
+                    onUpdateCredentials = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Profile.route) { inclusive = true }
                         }
                     }
                 )
