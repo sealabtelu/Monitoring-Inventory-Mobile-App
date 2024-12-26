@@ -1,14 +1,35 @@
 package com.example.inventorymonitoring.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,47 +38,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.data.ServiceLocator
-import com.example.inventorymonitoring.data.repository.RecentActivity
+import com.example.inventorymonitoring.data.repository.RecentNotif
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    onItemClick: (String) -> Unit,
-    onAddNewItem: () -> Unit,
-    onNotificationClick: () -> Unit,
+fun NotificationScreen(
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
-) {
+){
     val firestoreRepository = remember { ServiceLocator.firestoreRepository }
-    var recentActivity by remember { mutableStateOf<List<RecentActivity>>(emptyList()) }
-    var uniqueNomorRak by remember { mutableStateOf<List<String>>(emptyList()) }
+    var recentNotif by remember { mutableStateOf<List<RecentNotif>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(firestoreRepository) {
-        firestoreRepository.getRecentActivityStream()
+        firestoreRepository.getRecentNotifStream()
             .catch { e ->
                 error = e.message
                 isLoading = false
             }
             .collectLatest { activities ->
-                recentActivity = activities.take(5)
+                recentNotif = activities.take(5)
                 isLoading = false
             }
     }
 
-    LaunchedEffect(firestoreRepository) {
-        firestoreRepository.getUniqueNomorRak()
-            .catch { e ->
-                error = e.message
-                isLoading = false
-            }
-            .collectLatest { nomorRakList ->
-                uniqueNomorRak = nomorRakList
-                isLoading = false
-            }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Gradient Background for header
@@ -78,7 +84,6 @@ fun HomeScreen(
         LazyColumn(
             modifier = modifier.fillMaxSize()
         ) {
-            // Header
             item {
                 Box(
                     modifier = Modifier
@@ -86,69 +91,23 @@ fun HomeScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Home",
+                        text = "Notification",
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
-                    IconButton(
-                        onClick = {
-                            onNotificationClick()
-                        },
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            tint = Color.White
-                        )
-                    }
                 }
             }
 
-            // White background content
             item {
-                Surface(
+                Surface (
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-                        // Rooms Section
                         Text(
-                            text = "Rooms",
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(16.dp),
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        if (uniqueNomorRak.isEmpty()) {
-                            Text(
-                                text = "No rooms available",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp),
-                                color = Color.Gray
-                            )
-                        } else {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                            ) {
-                                uniqueNomorRak.forEach { nomorRak ->
-                                    RoomCard(
-                                        roomName = "Ruangan $nomorRak",
-                                        description = "Description for Ruangan $nomorRak",
-                                        onViewClick = { /* Handle room view */ },
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
-                            }
-                        }
-
-                        // Recent Activity Section
-                        Text(
-                            text = "Recent Activity",
+                            text = "Activity",
                             style = MaterialTheme.typography.headlineMedium,
                             modifier = Modifier.padding(16.dp),
                             fontWeight = FontWeight.Bold
@@ -161,8 +120,8 @@ fun HomeScreen(
                                     .align(Alignment.CenterHorizontally)
                             )
                         } else {
-                            recentActivity.forEach { activity ->
-                                ActivityCard(
+                            recentNotif.forEach { activity ->
+                                NotificationCard(
                                     itemName = activity.namaBarang,
                                     location = activity.nomorRak,
                                     action = activity.status
@@ -173,11 +132,26 @@ fun HomeScreen(
                 }
             }
         }
+
+        FloatingActionButton(
+            onClick = { onBackClick() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(16.dp),
+            containerColor = Color(0xFF6B35E8),
+            shape = RoundedCornerShape(32.dp),
+        ) {
+            Text(
+                text = "Back",
+                color = Color.White
+            )
+        }
     }
 }
 
 @Composable
-fun ActivityCard(
+fun NotificationCard(
     itemName: String,
     location: String,
     action: String,
@@ -226,49 +200,6 @@ fun ActivityCard(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun RoomCard(
-    roomName: String,
-    description: String,
-    onViewClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = roomName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            Button(
-                onClick = onViewClick,
-                modifier = Modifier.align(Alignment.End),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6B35E8)
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("View", fontWeight = FontWeight.Bold)
             }
         }
     }

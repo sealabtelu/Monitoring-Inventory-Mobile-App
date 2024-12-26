@@ -68,6 +68,59 @@ class FirestoreRepository(
         emit(recentActivities.take(5))
     }
 
+    fun getRecentNotifStream() : Flow<List<RecentNotif>> = flow {
+        val barangMasukSnapshot = firestore.collection("barang_masuk").get().await()
+        val barangKeluarSnapshot = firestore.collection("barang_keluar").get().await()
+        val dataBarangSnapshot = firestore.collection("data_barang").get().await()
+
+        // Convert data_barang documents to a map for quick lookup
+        val dataBarangMap = dataBarangSnapshot.documents.associate { document ->
+            val dataBarang = document.toObject(DataBarang::class.java)
+            dataBarang?.id to dataBarang // Ensure you are using the correct field for the key
+        }
+
+        val recentNotif = mutableListOf<RecentNotif>()
+
+        // Process barang_masuk
+        for (document in barangMasukSnapshot.documents) {
+            val barangMasuk = document.toObject(BarangMasuk::class.java)
+            val dataBarang = dataBarangMap[barangMasuk?.barang_id]
+            if (dataBarang != null) {
+                if (barangMasuk != null) {
+                    recentNotif.add(
+                        RecentNotif(
+                            namaBarang = dataBarang.nama_barang,
+                            nomorRak = "Ruangan " + dataBarang.nomor_rak,
+                            status = "Barang Masuk",
+                            timestamp = barangMasuk.updated_at // Use the appropriate timestamp
+                        )
+                    )
+                }
+            }
+        }
+
+        // Process barang_keluar
+        for (document in barangKeluarSnapshot.documents) {
+            val barangKeluar = document.toObject(BarangKeluar::class.java)
+            val dataBarang = dataBarangMap[barangKeluar?.barang_id]
+            if (dataBarang != null) {
+                if (barangKeluar != null) {
+                    recentNotif.add(
+                        RecentNotif(
+                            namaBarang = dataBarang.nama_barang,
+                            nomorRak = "Ruangan " + dataBarang.nomor_rak,
+                            status = "Barang Keluar",
+                            timestamp = barangKeluar.updated_at
+                        )
+                    )
+                }
+            }
+        }
+
+        // Sort activities by timestamp in descending order
+        recentNotif.sortByDescending { it.timestamp }
+    }
+
 
     // Fetch a single item by ID
     fun getBarangById(itemId: String): Flow<DataBarang?> = flow {
@@ -157,3 +210,10 @@ data class RecentActivity(
     val timestamp: String
 )
 
+
+data class RecentNotif(
+    val namaBarang: String,
+    val nomorRak: String,
+    val status: String,
+    val timestamp: String
+)

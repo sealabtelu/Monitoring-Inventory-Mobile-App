@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ItemsScreen(
     onItemClick: (String) -> Unit,
+    onNotificationClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -82,7 +83,9 @@ fun ItemsScreen(
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(
-                    onClick = { /* Handle notifications */ },
+                    onClick = {
+                        onNotificationClick()
+                    },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(

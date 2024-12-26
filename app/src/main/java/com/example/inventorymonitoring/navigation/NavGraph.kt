@@ -20,6 +20,7 @@ import com.example.inventorymonitoring.ui.screens.EditProfileScreen
 import com.example.inventorymonitoring.ui.screens.HomeScreen
 import com.example.inventorymonitoring.ui.screens.ItemDetailsScreen
 import com.example.inventorymonitoring.ui.screens.ItemsScreen
+import com.example.inventorymonitoring.ui.screens.NotificationScreen
 import com.example.inventorymonitoring.ui.screens.ProfileScreen
 import com.example.inventorymonitoring.ui.screens.SignInScreen
 import com.google.rpc.context.AttributeContext.Auth
@@ -31,6 +32,7 @@ sealed class Screen(val route: String) {
     object Items : Screen("items")
     object Profile : Screen("profile")
     object EditProfile : Screen("edit_profile")
+    object Notification: Screen("notification")
     object ItemDetails : Screen("item_details/{itemId}") {
         fun createRoute(itemId: String) = "item_details/$itemId"
     }
@@ -96,6 +98,9 @@ fun AppNavigation(context: Context) {
                     },
                     onAddNewItem = {
                         navController.navigate(Screen.Items.route)
+                    },
+                    onNotificationClick = {
+                        navController.navigate(Screen.Notification.route)
                     }
                 )
             }
@@ -104,6 +109,9 @@ fun AppNavigation(context: Context) {
                 ItemsScreen(
                     onItemClick = { itemId ->
                         navController.navigate(Screen.ItemDetails.createRoute(itemId))
+                    },
+                    onNotificationClick = {
+                        navController.navigate(Screen.Notification.route)
                     }
                 )
             }
@@ -117,6 +125,9 @@ fun AppNavigation(context: Context) {
                         navController.navigate(Screen.SignIn.route) {
                             popUpTo(Screen.SignIn.route) { inclusive = true }
                         }
+                    },
+                    onNotificationClick = {
+                        navController.navigate(Screen.Notification.route)
                     }
                 )
             }
@@ -131,6 +142,13 @@ fun AppNavigation(context: Context) {
                     },
                     onClickBack = {
                         navController.navigate(Screen.Profile.route)
+                    }
+                )
+            }
+            composable(Screen.Notification.route) {
+                NotificationScreen(
+                    onBackClick = {
+                        navController.popBackStack()
                     }
                 )
             }
