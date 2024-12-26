@@ -10,6 +10,7 @@ data class DataBarang(
     val status: String = "",
     val stok_awal: Int = 0,
     val stok_sekarang: Int = 0,
+    val terkunci: Int = 0,
     val updated_at: String = "",
     val umur: Int = 0,
 )

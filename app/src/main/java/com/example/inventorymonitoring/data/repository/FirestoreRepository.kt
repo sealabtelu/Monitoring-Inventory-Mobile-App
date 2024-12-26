@@ -200,6 +200,17 @@ class FirestoreRepository(
         // Emit the activities
         emit(recentActivities)
     }
+    fun updateItemLockStatus(itemId: String, status: Int) {
+        firestore.collection("data_barang").document(itemId)
+            .update("terkunci", status)
+            .addOnSuccessListener {
+                // Handle success
+            }
+            .addOnFailureListener { e ->
+                // Handle failure
+            }
+    }
+
 }
 
 // Data class to represent recent activity
