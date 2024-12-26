@@ -1,5 +1,6 @@
 package com.example.inventorymonitoring.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -138,7 +139,7 @@ fun HomeScreen(
                                 uniqueNomorRak.forEach { nomorRak ->
                                     RoomCard(
                                         roomName = "Ruangan $nomorRak",
-                                        description = "Description for Ruangan $nomorRak",
+                                        description = "See details of Ruangan $nomorRak",
                                         onViewClick = { /* Handle room view */ },
                                         modifier = Modifier.weight(1f)
                                     )
@@ -188,10 +189,10 @@ fun ActivityCard(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray
-        )
+            containerColor = Color.White
+        ),
+        border = BorderStroke(1.dp, Color(0xFFE0E0E0))
     ) {
         Row(
             modifier = Modifier
@@ -241,10 +242,10 @@ fun RoomCard(
     Card(
         modifier = modifier.padding(8.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray
-        )
+            containerColor = Color.White
+        ),
+        border = BorderStroke(1.dp, Color(0xFFE0E0E0))
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

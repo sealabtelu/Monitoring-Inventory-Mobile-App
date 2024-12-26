@@ -1,5 +1,6 @@
 package com.example.inventorymonitoring.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,12 +34,28 @@ fun ItemsScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var items by remember { mutableStateOf<List<DataBarang>>(emptyList()) }
+    var hilangItems by remember { mutableStateOf<List<DataBarang>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var selectedTab by remember { mutableStateOf(0) }
 
     val firestoreRepository = remember { ServiceLocator.firestoreRepository }
 
+    // Update Hilang items when the screen is launched
+    LaunchedEffect(Unit) {
+        firestoreRepository.updateHilangItems()
+            .catch { e ->
+                error = e.message
+                isLoading = false
+            }
+            .collectLatest { updatedHilangItems ->
+                hilangItems = updatedHilangItems
+                Log.d("HilangCheck", "Number of Hilang items: ${hilangItems.size}") // Log the size of hilangItems
+                isLoading = false
+            }
+    }
+
+    // Fetch all data barang
     LaunchedEffect(firestoreRepository) {
         firestoreRepository.getAllDataBarang()
             .catch { e ->
@@ -171,7 +188,8 @@ fun ItemsScreen(
                                 )
                             }
                         } else {
-                            items(items) { item ->
+                            val displayedItems = if (selectedTab == 0) items else hilangItems
+                            items(displayedItems) { item ->
                                 ItemCard(item = item, onClick = { onItemClick(item.id) })
                                 Spacer(modifier = Modifier.height(8.dp))
                             }

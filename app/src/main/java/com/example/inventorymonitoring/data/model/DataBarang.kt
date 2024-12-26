@@ -1,7 +1,7 @@
 package com.example.inventorymonitoring.data.model
 
 data class DataBarang(
-    val created_at: String = "",
+    val created_at: String? = null,
     val id: String = "",
     val jenis: String = "",
     val kode_barang: String = "",
@@ -11,6 +11,6 @@ data class DataBarang(
     val stok_awal: Int = 0,
     val stok_sekarang: Int = 0,
     val terkunci: Int = 0,
-    val updated_at: String = "",
+    val updated_at: String? = null,
     val umur: Int = 0,
 )

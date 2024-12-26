@@ -1,5 +1,6 @@
 package com.example.inventorymonitoring.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -163,10 +164,10 @@ fun NotificationCard(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray
-        )
+            containerColor = Color.White
+        ),
+        border = BorderStroke(1.dp, Color(0xFFE0E0E0))
     ) {
         Row(
             modifier = Modifier

@@ -1,31 +1,46 @@
 package com.example.inventorymonitoring.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.inventorymonitoring.R
 import com.example.inventorymonitoring.data.ServiceLocator
 import com.example.inventorymonitoring.data.model.DataBarang
 import com.example.inventorymonitoring.data.repository.RecentActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,11 +53,20 @@ fun ItemDetailsScreen(
     var logs by remember { mutableStateOf<List<RecentActivity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var showDialog by remember { mutableStateOf(false) }
-    var isLocking by remember { mutableStateOf(false) } // New state to track locking action
-    var isProcessing by remember { mutableStateOf(false) } // New state to track processing
 
     val firestoreRepository = remember { ServiceLocator.firestoreRepository }
+
+    LaunchedEffect(Unit) {
+        // Update umur and timestamp for all items
+        firestoreRepository.updateUmurAndTimestamp()
+            .catch { e ->
+                error = e.message
+                isLoading = false
+            }
+            .collectLatest { updatedItems ->
+                // Optionally handle the updated items if needed
+            }
+    }
 
     LaunchedEffect(itemId) {
         firestoreRepository.getBarangById(itemId)
@@ -111,27 +135,6 @@ fun ItemDetailsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    // Lock/Unlock Icon
-                    item?.let { currentItem ->
-                        IconButton(onClick = {
-                            if (!isProcessing) { // Prevent multiple clicks
-                                if (currentItem.terkunci == 1) {
-                                    // Show dialog to confirm unlocking
-                                    showDialog = true
-                                } else {
-                                    // Show dialog to confirm locking
-                                    isLocking = true
-                                    showDialog = true
-                                }
-                            }
-                        }) {
-                            Icon(
-                                painter = painterResource(id = if (currentItem.terkunci == 1) R.drawable.lock else R.drawable.unlock),
-                                contentDescription = "Lock",
-                                tint = Color.White
-                            )
-                        }
-                    }
                 }
             }
 
@@ -170,8 +173,7 @@ fun ItemDetailsScreen(
 
                         DetailRow("Kode Barang", currentItem.kode_barang)
                         DetailRow("Stok", currentItem.stok_sekarang.toString())
-                        DetailRow("Umur Barang", currentItem.umur.toString()) // Convert to String
-                    }
+                        DetailRow("Umur", "${currentItem.umur} hari")                    }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
@@ -206,70 +208,8 @@ fun ItemDetailsScreen(
             }
         }
     }
-
-    // Confirmation Dialog
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(if (isLocking) "Lock Item" else "Unlock Item") },
-            text = { Text("Are you sure you want to ${if (isLocking) "lock" else "unlock"} this item?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    isProcessing = true // Set processing state
-                    if (isLocking) {
-                        // Lock the item
-                        lockItem(item?.id ?: "") {
-                            // Update the item state after locking
-                            item = item?.copy(terkunci = 1)
-                            isProcessing = false // Reset processing state
-                        }
-                    } else {
-                        // Unlock the item
-                        unlockItem(item?.id ?: "") {
-                            // Update the item state after unlocking
-                            item = item?.copy(terkunci = 0)
-                            isProcessing = false // Reset processing state
-                        }
-                    }
-                    showDialog = false
-                }) {
-                    Text("Yes")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("No")
-                }
-            }
-        )
-    }
 }
 
-private fun unlockItem(itemId: String, onUnlock: () -> Unit) {
-    val firestoreRepository = ServiceLocator.firestoreRepository
-
-    // Launch a coroutine to fetch the current item and update the lock status
-    CoroutineScope(Dispatchers.IO).launch {
-        firestoreRepository.getBarangById(itemId).collectLatest { currentItem ->
-            currentItem?.let {
-                // Toggle the terkunci value
-                val newStatus = if (it.terkunci == 1) 0 else 1
-                firestoreRepository.updateItemLockStatus(itemId, newStatus)
-                onUnlock() // Call the onUnlock callback to update the UI
-            }
-        }
-    }
-}
-
-private fun lockItem(itemId: String, onLock: () -> Unit) {
-    val firestoreRepository = ServiceLocator.firestoreRepository
-
-    // Launch a coroutine to lock the item
-    CoroutineScope(Dispatchers.IO).launch {
-        firestoreRepository.updateItemLockStatus(itemId, 1) // Set terkunci to 1
-        onLock() // Call the onLock callback to update the UI
-    }
-}
 
 @Composable
 private fun DetailRow(label: String, value: String) {
