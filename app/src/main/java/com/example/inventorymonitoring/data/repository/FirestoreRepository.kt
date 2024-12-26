@@ -119,6 +119,8 @@ class FirestoreRepository(
 
         // Sort activities by timestamp in descending order
         recentNotif.sortByDescending { it.timestamp }
+
+        emit(recentNotif.take(30))
     }
 
 

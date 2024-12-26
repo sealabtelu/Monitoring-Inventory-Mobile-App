@@ -124,7 +124,8 @@ fun NotificationScreen(
                                 NotificationCard(
                                     itemName = activity.namaBarang,
                                     location = activity.nomorRak,
-                                    action = activity.status
+                                    action = activity.status,
+
                                 )
                             }
                         }
