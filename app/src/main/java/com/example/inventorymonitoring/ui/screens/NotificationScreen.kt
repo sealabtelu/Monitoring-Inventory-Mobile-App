@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.inventorymonitoring.data.ServiceLocator
-import com.example.inventorymonitoring.data.repository.RecentNotif
+import com.example.inventorymonitoring.data.datasource.RecentNotif
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 

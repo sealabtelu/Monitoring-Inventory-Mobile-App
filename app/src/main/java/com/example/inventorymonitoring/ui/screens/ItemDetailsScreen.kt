@@ -1,34 +1,16 @@
 package com.example.inventorymonitoring.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,9 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.inventorymonitoring.data.ServiceLocator
+import com.example.inventorymonitoring.data.datasource.RecentActivity
 import com.example.inventorymonitoring.data.model.DataBarang
-import com.example.inventorymonitoring.data.repository.RecentActivity
+import com.example.inventorymonitoring.navigation.Screen
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
@@ -46,6 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ItemDetailsScreen(
     itemId: String,
+    navController: NavController,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,20 +38,7 @@ fun ItemDetailsScreen(
     var logs by remember { mutableStateOf<List<RecentActivity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-
     val firestoreRepository = remember { ServiceLocator.firestoreRepository }
-
-    LaunchedEffect(Unit) {
-        // Update umur and timestamp for all items
-        firestoreRepository.updateUmurAndTimestamp()
-            .catch { e ->
-                error = e.message
-                isLoading = false
-            }
-            .collectLatest { updatedItems ->
-                // Optionally handle the updated items if needed
-            }
-    }
 
     LaunchedEffect(itemId) {
         firestoreRepository.getBarangById(itemId)
@@ -88,6 +60,24 @@ fun ItemDetailsScreen(
                 logs = fetchedLogs
                 isLoading = false
             }
+
+        firestoreRepository.updateUmurAndTimestamp()
+            .catch { e ->
+                error = e.message
+                isLoading = false
+            }
+            .collectLatest { fetchedItems ->
+                // Handle the fetched items if needed
+                isLoading = false
+            }
+    }
+
+    LaunchedEffect(item) {
+        if (item != null && item?.nama_barang.isNullOrBlank()) {
+            navController.navigate(Screen.CreateItem.createRoute(itemId)) {
+                popUpTo(Screen.ItemDetails.route) { inclusive = true }
+            }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -135,6 +125,17 @@ fun ItemDetailsScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
+                    IconButton(onClick = {
+                        // Log the itemId before navigating
+                        Log.d("ItemDetailsScreen", "Navigating to EditItemScreen with itemId: $itemId")
+                        navController.navigate(Screen.EditItem.createRoute(itemId))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
 
@@ -155,33 +156,39 @@ fun ItemDetailsScreen(
                 item?.let { currentItem ->
                     // Item Details
                     Column(
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 24.dp)
                     ) {
-                        Column(modifier = Modifier.padding(vertical = 24.dp)) {
-                            Text(
-                                text = currentItem.nama_barang,
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = currentItem.id,
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 16.sp
-                            )
+                        Row(
+                            modifier = Modifier.padding(vertical = 24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = currentItem.nama_barang,
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = currentItem.id,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 16.sp
+                                )
+                            }
                         }
 
                         DetailRow("Kode Barang", currentItem.kode_barang)
                         DetailRow("Stok", currentItem.stok_sekarang.toString())
-                        DetailRow("Umur", "${currentItem.umur} hari")                    }
+                        DetailRow("Umur Barang", "${currentItem.umur} hari")
+                    }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // Item Logs Section
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                        color = MaterialTheme.colorScheme.background
+                        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                        color = Color.White
                     ) {
                         Column(
                             modifier = Modifier.fillMaxSize()
@@ -209,7 +216,6 @@ fun ItemDetailsScreen(
         }
     }
 }
-
 
 @Composable
 private fun DetailRow(label: String, value: String) {

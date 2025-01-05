@@ -25,12 +25,10 @@ import com.example.inventorymonitoring.data.model.DataBarang
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemsScreen(
     onItemClick: (String) -> Unit,
-    onNotificationClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onNotificationClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var items by remember { mutableStateOf<List<DataBarang>>(emptyList()) }
